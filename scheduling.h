@@ -3,8 +3,8 @@
 
 #include "queue.h"
 
-void orderFCFS(struct Queue *queue);
-void orderSJF(struct Queue *queue);
-void orderPriority(struct Queue *queue);
+int orderFCFS( Queue *queue );
+int orderSJF( Queue *queue );
+int orderPriority( Queue *queue );
 
 #endif

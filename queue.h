@@ -1,11 +1,26 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-struct Node;
-struct Queue;
+#include <time.h> // clock_t which is the amount of clock cycles since the program began
 
-void intitializeQueue( struct Queue *queue );
-void enQueue( struct Queue * queue, struct Node *newNode );
-struct Node* deQueue( struct Queue *queue );
+// Node structure for jobs
+typedef struct Node
+{
+    const char *name;
+    unsigned int jobTime;
+    unsigned int jobPriority;
+    clock_t arrivalTime; // Used for FCFS so it will know which jobs got there before the other
+    Node *next;
+} Node;
+
+typedef struct Queue
+{
+    Node *head, *tail;
+    unsigned int size;
+} Queue;
+
+Queue* intitializeQueue( );
+void enQueue( Queue * queue, Node *newNode );
+Node* deQueue( Queue *queue );
 
 #endif

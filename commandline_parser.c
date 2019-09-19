@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include "scheduling.h"	// scheduling policy
+#include "queue.h"	// queue structs and queue funcions
+#include "global.h" // global variables
 
 /* Error Code */
 #define EINVAL       1
@@ -46,29 +49,37 @@ int cmd_run(int nargs, char **args) // "**" = pointer to pointer
       	return 0; /* if succeed */
 }
 
+/* 
+ * FCFS command - changes the policy to First Come First Served
+ */
 int cmd_fcfs()
 {
-	orderFCFS(); // TODO: link this function to scheduling.c so it can actually work
-}
+	orderFCFS(jobQueue); // Policy specified in scheduling.h and scheduling.c
 
+/* 
+ * SJF command - changes the policy to Shortest Job First
+ */
 int cmd_sjf()
 {
-	orderSJF(); // TODO: link this function to scheduling.c so it can actually work
+	orderSJF(jobQueue); // Policy specified in scheduling.h and scheduling.c
 }
 
+/* 
+ * Priority command - changes the policy to the 
+ */
 int cmd_priority()
 {
-	orderPriority(); // TODO: link this function to scheduling.c so it can actually work
+	orderPriority(jobQueue); // Policy specified in scheduling.h and scheduling.c
 }
 
 int cmd_list()
 {
-	// TODO: complete this function
+	// TODO: complete this command
 }
 
 int cmd_test()
 {
-	// TODO: complete this function
+	// TODO: complete this command
 }
 
 /*
@@ -211,7 +222,7 @@ int main()
  		perror("Unable to malloc buffer");
  		exit(1);
 	}
- 
+	
     while (1) {
 		printf("> [? for menu]: ");
 		getline(&buffer, &bufsize, stdin);

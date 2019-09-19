@@ -2,38 +2,21 @@
 #include <time.h>       // clock_t which is the amount of clock cycles since the program began
 #include "queue.h"
 
-// Node structure for jobs
-struct Node
-{
-    const char *name;
-    unsigned int jobTime;
-    unsigned int jobPriority;
-    clock_t arrivalTime;    // Used for FCFS so it will know which jobs got there before the other
-    struct Node  *next;
-};
-
-struct Queue
-{
-    struct Node *head, *tail;
-    unsigned int size;
-};
-
-// Global queue for scheduling and dispatching thread
-struct Queue *jobQueue;
 
 /*
  * Initializes a queue and returns it
  */
-struct Queue* initializeQueue(struct Queue *queue) 
+Queue* initializeQueue() 
 {
-    queue = (struct Queue*) malloc(sizeof(struct Queue));
+    Queue *queue = (Queue*) malloc(sizeof(Queue));
     queue->head = queue ->tail = NULL;
     queue->size = 0;
     return queue;
 }
 
-void enQueue(struct Queue *queue, struct Node *newNode) 
-{   
+void enQueue(Queue *queue, Node *newNode) 
+{
+    newNode->arrivalTime = clock();
     // If the queue is empty set the head and tail to the new node
     if (queue->size == 0) 
     {
@@ -50,13 +33,13 @@ void enQueue(struct Queue *queue, struct Node *newNode)
     
 }
 
-struct Node* deQueue(struct Queue *queue) 
+Node* deQueue(Queue *queue) 
 {
     if (queue->size == 0)
     {
         return NULL;
     }
-    struct Node *removedNode;
+    Node *removedNode;
     removedNode = queue->head;
     queue->head = queue->head->next;
     queue->size--;
