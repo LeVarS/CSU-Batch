@@ -1,8 +1,0 @@
-#include <stdio.h>
-
-void main() {
-	char user;
-	printf("Welcome to Aaron and LeVar's batch job scheduler Version1.0.\n");
-	printf("Type 'help' to find out more about CSUbatch commands.\n");
-	scanf("%c", &user);
-}
