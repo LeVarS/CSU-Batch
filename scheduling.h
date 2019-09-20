@@ -3,8 +3,9 @@
 
 #include "queue.h"
 
-int orderFCFS( Queue *queue );
-int orderSJF( Queue *queue );
-int orderPriority( Queue *queue );
+// TODO: change to use global queue - jobQueue
+int orderFCFS( );
+int orderSJF( );
+int orderPriority( );
 
 #endif

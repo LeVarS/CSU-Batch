@@ -25,7 +25,7 @@
 void menu_execute(char *line, int isargs); 
 int cmd_run(int nargs, char **args); 		// Prototype for cmd_run which is later defined
 int cmd_quit(int nargs, char **args);  		// Prototype for cmd_quit which is later defined
-void showmenu(const char *name, const char *x[]);		// Prototype for showmenu which is later defined
+void showmenu(const char *x[]);		// Prototype for showmenu which is later defined
 int cmd_helpmenu(int n, char **a);		// Prototype for cmd_helpmenu which is later defined
 int cmd_dispatch(char *cmd);		// Prototype for cmd_dispatch which is later defined
 int cmd_fcfs();
@@ -44,8 +44,18 @@ int cmd_run(int nargs, char **args) // "**" = pointer to pointer
 		return EINVAL;
 	}
         
+		Node *newNode = (Node*) malloc(sizeof(Node));
+		newNode->name = args[1];
+		newNode->jobTime = (unsigned int) args[2];
+		newNode->jobPriority = (unsigned int) args[3];
+
+		printf("Adding job to queue\n");
+
+		enQueue(jobQueue, newNode);
+
+		printf("Done adding job to queue\n");
         /* Use execv to run the submitted job in csubatch */
-        printf("use execv to run the job in csubatch.\n");
+        //printf("use execv to run the job in csubatch.\n");
       	return 0; /* if succeed */
 }
 
@@ -54,14 +64,27 @@ int cmd_run(int nargs, char **args) // "**" = pointer to pointer
  */
 int cmd_fcfs()
 {
-	orderFCFS(jobQueue); // Policy specified in scheduling.h and scheduling.c
+	if (orderFCFS(jobQueue) == 0) // Policy specified in scheduling.h and scheduling.c
+	{
+		printf("Scheduling policy is switched to FCFS. All the %d waiting jobs have been rescheduled.\n", jobQueue->size);
+		return 0;
+	}
+	printf("No jobs inside of queue to order into FCFS policy\n");
+	return -1;
+}
 
 /* 
  * SJF command - changes the policy to Shortest Job First
  */
 int cmd_sjf()
 {
-	orderSJF(jobQueue); // Policy specified in scheduling.h and scheduling.c
+	if (orderSJF(jobQueue) == 0)
+	{
+		printf("Scheduling policy is switched to SJF. All the %d waiting jobs have been rescheduled.\n", jobQueue->size);
+		return 0;
+	}
+	printf("No jobs inside of queue to order into SJF policy\n");
+	return -1; // Policy specified in scheduling.h and scheduling.c
 }
 
 /* 
@@ -69,17 +92,25 @@ int cmd_sjf()
  */
 int cmd_priority()
 {
-	orderPriority(jobQueue); // Policy specified in scheduling.h and scheduling.c
+	if ( orderPriority(jobQueue) == 0)  // Policy specified in scheduling.h and scheduling.c
+	{
+		printf("Scheduling policy is switched to Priority. All the %d waiting jobs have been rescheduled.\n", jobQueue->size);
+		return 0;
+	}
+	printf("No jobs inside of queue to order into Priority policy\n");
+	return -1;
 }
 
 int cmd_list()
 {
-	// TODO: complete this command
+	printQueue(jobQueue);
+	return 0;
 }
 
 int cmd_test()
 {
 	// TODO: complete this command
+	return 0;
 }
 
 /*
@@ -94,44 +125,49 @@ int cmd_quit(int nargs, char **args)
 /*
  * Display menu information
  */
-void showmenu(const char *name, const char *x[])	// Name is a descriptive title for the menu that will be printed, and x[] is the array holding the contents of the menu
+void showmenu(const char *x[])	// Name is a descriptive title for the menu that will be printed, and x[] is the array holding the contents of the menu
 {
 	int ct, half, i;
 
 	printf("\n");
-	printf("%s\n", name);
+	//printf("%s\n", name);
 	
 	for (i=ct=0; x[i]; i++) {
 		ct++;
 	}
-	half = (ct+1)/2;
 
-	for (i=0; i<half; i++) {
-		printf("    %-36s", x[i]);	// Prints the element at index "i" in 36 spaces. If element doesn't fill the entire 36 spaces, then fill the rest with empty spaces
-		if (i+half < ct) {
-			printf("%s", x[i+half]);
-		}
+	for (i=0; i<ct; i++) {
+		printf("  %-36s\n", x[i]);	// Prints the element at index "i" in 36 spaces. If element doesn't fill the entire 36 spaces, then fill the rest with empty spaces
+		// if (i+half < ct) {
+		// 	printf("%s", x[i+half]);
+		// }
 		printf("\n");
 	}
 
 	printf("\n");
 }
 
-static const char *helpmenu[] = 
-{
-	"[run] <job> <time> <priority>       ",
-	"[quit] Exit csubatch                 ",
-	"[help] Print help menu              ",
-        /* Please add more menu options below */
-	NULL
-};
+static const char *helpmenu[] =
+	{
+
+		"NAME                         USAGE                            DESCRIPTION                  ",
+		"fcfs                       fcfs, FCFS          Changes policy to FCFS and reorders queue   ",
+		"help                       help, h, ?                       Print help menu                ",
+		"list                         list               Prints jobs running and pending in queue   ",
+		"priority                    priority         Changes policy to priority and reorders queue ",
+		"quit                        quit, q                          Exit csubatch                 ",
+		"run                run <job> <time> <priority>          Adds a job to the queue            ",
+		"sjf                         sjf, SJF            Changes policy to SJF and reorders queue   ",
+		"test               test <benchmark> <policy>    Benchmark a policy with given information\n\t\t  <num_of_jobs> <priority_levels>\n\t\t   <min_CPU_time> <max_CPU_time>",
+
+		NULL};
 
 int cmd_helpmenu(int n, char **a)
 {
 	(void)n;
 	(void)a;
 
-	showmenu("csubatch help menu", helpmenu);	
+	showmenu(helpmenu);	
 	return 0;
 }
 
@@ -157,7 +193,7 @@ static struct {
 	{ "fcfs\n", cmd_fcfs },
 	{ "FCFS\n", cmd_fcfs },
 	{ "sjf\n",  cmd_sjf },
-	{ "sjf\n",  cmd_sjf },	
+	{ "SJF\n",  cmd_sjf },	
 	{ "p\n",    cmd_priority },
 	{ "priority\n", cmd_priority },
         /* Please add more operations below. */
@@ -169,8 +205,8 @@ static struct {
  */
 int cmd_dispatch(char *cmd)
 {
-	time_t beforesecs, aftersecs, secs;
-	u_int32_t beforensecs, afternsecs, nsecs;
+	// time_t beforesecs, aftersecs, secs;
+	// u_int32_t beforensecs, afternsecs, nsecs;
 	char *args[MAXMENUARGS];
 	int nargs=0;
 	char *word;
@@ -214,17 +250,21 @@ int cmd_dispatch(char *cmd)
  */
 int main()
 {
+	jobQueue = initializeQueue();
 	char *buffer;
-        size_t bufsize = 64;
+    size_t bufsize = 64;
         
-        buffer = (char*) malloc(bufsize * sizeof(char));
-        if (buffer == NULL) {
+    buffer = (char*) malloc(bufsize * sizeof(char));
+    if (buffer == NULL) 
+	{
  		perror("Unable to malloc buffer");
  		exit(1);
 	}
 	
+	printf("Welcom to LeVar's and Aaron's batch job scheduler Version 0.5\nType 'help' or '?' to find more about CSUbatch commands.\n");
+
     while (1) {
-		printf("> [? for menu]: ");
+		printf("> ");
 		getline(&buffer, &bufsize, stdin);
 		cmd_dispatch(buffer);
 	}

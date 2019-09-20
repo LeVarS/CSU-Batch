@@ -6,11 +6,11 @@
 // Node structure for jobs
 typedef struct Node
 {
-    const char *name;
+    char *name;
     unsigned int jobTime;
     unsigned int jobPriority;
     clock_t arrivalTime; // Used for FCFS so it will know which jobs got there before the other
-    Node *next;
+    struct Node *next;
 } Node;
 
 typedef struct Queue
@@ -19,8 +19,10 @@ typedef struct Queue
     unsigned int size;
 } Queue;
 
-Queue* intitializeQueue( );
+Queue* initializeQueue();
+// TODO: change to use global queue - jobQueue
 void enQueue( Queue * queue, Node *newNode );
 Node* deQueue( Queue *queue );
+void printQueue( Queue *queue );
 
 #endif

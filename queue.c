@@ -1,6 +1,8 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>       // clock_t which is the amount of clock cycles since the program began
 #include "queue.h"
+#include "global.h"
 
 
 /*
@@ -14,25 +16,31 @@ Queue* initializeQueue()
     return queue;
 }
 
+// TODO: change to use global queue - jobQueue
 void enQueue(Queue *queue, Node *newNode) 
 {
     newNode->arrivalTime = clock();
     // If the queue is empty set the head and tail to the new node
     if (queue->size == 0) 
     {
+        printf("Adding to empty queue");
         queue->head = queue->tail = newNode;
+        queue->tail->next = NULL;
         queue->size++;
     }
     else
     {
+        printf("Adding to non-empty queue");
         // Add the new node to the queue and move the tail to the end of the queue (new Node)
         queue->tail->next = newNode;
         queue->tail = queue->tail->next;
+        queue->tail->next = NULL;
         queue->size++;
     }
     
 }
 
+// TODO: change to use global queue - jobQueue
 Node* deQueue(Queue *queue) 
 {
     if (queue->size == 0)
@@ -44,5 +52,22 @@ Node* deQueue(Queue *queue)
     queue->head = queue->head->next;
     queue->size--;
     return removedNode;
+}
+
+void printQueue(Queue *queue)
+{
+    if (queue->size == 0) 
+    {
+        printf("There are no jobs pending or running.\n");
+    }
+    else
+    {
+        Node *tempNode = queue->head;
+        while (tempNode != NULL)
+        {
+            printf("   %-15s  %u     %u", tempNode->name, tempNode->jobTime, tempNode->jobPriority);
+            tempNode = tempNode->next;
+        }
+    }
 }
 
