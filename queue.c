@@ -23,14 +23,12 @@ void enQueue(Queue *queue, Node *newNode)
     // If the queue is empty set the head and tail to the new node
     if (queue->size == 0) 
     {
-        printf("Adding to empty queue");
         queue->head = queue->tail = newNode;
         queue->tail->next = NULL;
         queue->size++;
     }
     else
     {
-        printf("Adding to non-empty queue");
         // Add the new node to the queue and move the tail to the end of the queue (new Node)
         queue->tail->next = newNode;
         queue->tail = queue->tail->next;
@@ -65,9 +63,16 @@ void printQueue(Queue *queue)
         Node *tempNode = queue->head;
         while (tempNode != NULL)
         {
-            printf("   %-15s  %u     %u", tempNode->name, tempNode->jobTime, tempNode->jobPriority);
+            printf("%s", tempNode->name);
+            //printf("%s\t%d\t%d", tempNode->name, tempNode->jobTime, tempNode->jobPriority);
             tempNode = tempNode->next;
         }
+        printf("\n");
     }
+}
+
+void print_num_jobs()
+{
+    printf("Total number of jobs in the queue: %d\n", job_queue->size);
 }
 

@@ -7,8 +7,8 @@
 typedef struct Node
 {
     char *name;
-    unsigned int jobTime;
-    unsigned int jobPriority;
+    int jobTime;
+    int jobPriority;
     clock_t arrivalTime; // Used for FCFS so it will know which jobs got there before the other
     struct Node *next;
 } Node;
@@ -24,5 +24,6 @@ Queue* initializeQueue();
 void enQueue( Queue * queue, Node *newNode );
 Node* deQueue( Queue *queue );
 void printQueue( Queue *queue );
+void print_num_jobs();
 
 #endif

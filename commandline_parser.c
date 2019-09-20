@@ -45,15 +45,15 @@ int cmd_run(int nargs, char **args) // "**" = pointer to pointer
 	}
         
 		Node *newNode = (Node*) malloc(sizeof(Node));
-		newNode->name = args[1];
-		newNode->jobTime = (unsigned int) args[2];
-		newNode->jobPriority = (unsigned int) args[3];
-
-		printf("Adding job to queue\n");
-
-		enQueue(jobQueue, newNode);
-
-		printf("Done adding job to queue\n");
+		printf("Job %s was submitted.\n", args[1]);
+		print_num_jobs();
+		// TODO: Print expected wait time
+		print_policy();
+		newNode->name = malloc(strlen(args[1]) + 1);
+		newNode->jobTime = (int) args[2];
+		newNode->jobPriority = (int) args[3];
+\
+		enQueue(job_queue, newNode);
         /* Use execv to run the submitted job in csubatch */
         //printf("use execv to run the job in csubatch.\n");
       	return 0; /* if succeed */
@@ -64,13 +64,7 @@ int cmd_run(int nargs, char **args) // "**" = pointer to pointer
  */
 int cmd_fcfs()
 {
-	if (orderFCFS(jobQueue) == 0) // Policy specified in scheduling.h and scheduling.c
-	{
-		printf("Scheduling policy is switched to FCFS. All the %d waiting jobs have been rescheduled.\n", jobQueue->size);
-		return 0;
-	}
-	printf("No jobs inside of queue to order into FCFS policy\n");
-	return -1;
+	return orderFCFS(job_queue);
 }
 
 /* 
@@ -78,13 +72,7 @@ int cmd_fcfs()
  */
 int cmd_sjf()
 {
-	if (orderSJF(jobQueue) == 0)
-	{
-		printf("Scheduling policy is switched to SJF. All the %d waiting jobs have been rescheduled.\n", jobQueue->size);
-		return 0;
-	}
-	printf("No jobs inside of queue to order into SJF policy\n");
-	return -1; // Policy specified in scheduling.h and scheduling.c
+	return orderSJF(job_queue);
 }
 
 /* 
@@ -92,18 +80,17 @@ int cmd_sjf()
  */
 int cmd_priority()
 {
-	if ( orderPriority(jobQueue) == 0)  // Policy specified in scheduling.h and scheduling.c
-	{
-		printf("Scheduling policy is switched to Priority. All the %d waiting jobs have been rescheduled.\n", jobQueue->size);
-		return 0;
-	}
-	printf("No jobs inside of queue to order into Priority policy\n");
-	return -1;
+	return orderPriority(job_queue);
 }
 
+/*
+ * List command - displays the jobs in the queue that are running and pending
+ */
 int cmd_list()
 {
-	printQueue(jobQueue);
+	print_num_jobs();
+	print_policy();
+	printQueue(job_queue);
 	return 0;
 }
 
@@ -250,7 +237,9 @@ int cmd_dispatch(char *cmd)
  */
 int main()
 {
-	jobQueue = initializeQueue();
+	job_queue = initializeQueue();
+	policy = FCFS;
+
 	char *buffer;
     size_t bufsize = 64;
         
