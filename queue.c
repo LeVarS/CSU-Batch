@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>       // clock_t which is the amount of clock cycles since the program began
 #include "queue.h"
 #include "global.h"
@@ -17,57 +18,80 @@ Queue* initializeQueue()
 }
 
 // TODO: change to use global queue - jobQueue
-void enQueue(Queue *queue, Node *newNode) 
+void enQueue(Node *newNode) 
 {
     newNode->arrivalTime = clock();
     // If the queue is empty set the head and tail to the new node
-    if (queue->size == 0) 
+    if (job_queue->size == 0) 
     {
-        queue->head = queue->tail = newNode;
-        queue->tail->next = NULL;
-        queue->size++;
+        job_queue->head = job_queue->tail = newNode;
+        job_queue->tail->next = NULL;
+        job_queue->size++;
     }
     else
     {
         // Add the new node to the queue and move the tail to the end of the queue (new Node)
-        queue->tail->next = newNode;
-        queue->tail = queue->tail->next;
-        queue->tail->next = NULL;
-        queue->size++;
+        job_queue->tail->next = newNode;
+        job_queue->tail = job_queue->tail->next;
+        job_queue->tail->next = NULL;
+        job_queue->size++;
     }
     
 }
 
 // TODO: change to use global queue - jobQueue
-Node* deQueue(Queue *queue) 
+Node* deQueue() 
 {
-    if (queue->size == 0)
+    if (job_queue->size == 0)
     {
         return NULL;
     }
     Node *removedNode;
-    removedNode = queue->head;
-    queue->head = queue->head->next;
-    queue->size--;
+    removedNode = job_queue->head;
+    job_queue->head = job_queue->head->next;
+    job_queue->size--;
     return removedNode;
 }
 
-void printQueue(Queue *queue)
+void copy_node(Node *destination, Node *source) 
 {
-    if (queue->size == 0) 
+    // FIXME: causing seg fault
+    destination->name = (char*) malloc(strlen(source->name) + 1);
+    strcpy(destination->name, source->name);
+    destination->arrivalTime = source->arrivalTime;
+    destination->jobPriority = source->jobPriority;
+    destination->jobTime = source->jobTime;
+
+    //free(destination->name);
+    //free(destination);
+}
+
+void swap_nodes(Node *node1, Node *node2)
+{
+    Node *tempNode = (Node *) malloc(sizeof(Node)); // Create a place in memory to hold temporary information
+    copy_node(tempNode, node1);
+    copy_node(node1, node2);
+    copy_node(node2, tempNode);
+
+    free (tempNode);
+}
+
+void printQueue()
+{
+    if (job_queue->size == 0) 
     {
         printf("There are no jobs pending or running.\n");
     }
     else
     {
-        Node *tempNode = queue->head;
+        Node *tempNode = job_queue->head;
         while (tempNode != NULL)
         {
-            printf("%s", tempNode->name);
-            //printf("%s\t%d\t%d", tempNode->name, tempNode->jobTime, tempNode->jobPriority);
+            //printf("%s", tempNode->name);
+            printf("%s\t%d\t%d\n", tempNode->name, tempNode->jobTime, tempNode->jobPriority);
             tempNode = tempNode->next;
         }
-        printf("\n");
+        //printf("\n");
     }
 }
 

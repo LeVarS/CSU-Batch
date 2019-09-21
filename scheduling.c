@@ -3,6 +3,7 @@
 #include "scheduling.h" // scheduling poilicies - fcfs, sjf, priority
 #include "global.h"
 #include "policies.h"
+#include "queue.h"
 
 /*
  * Print Policy Function - Prints the current policy
@@ -42,7 +43,7 @@ int orderFCFS()
     Node *tempPointer =job_queue->head;
     
     // Selection Sort algorithm to sort for the fcfs policy
-    // FIXME: Endless loop needs to be fixed
+    
     while (tempPointer != NULL)
     {
         Node *min = tempPointer;
@@ -55,14 +56,26 @@ int orderFCFS()
             }
             tempNode = tempNode->next;
         }
-        tempNode = tempPointer->next;
-        tempPointer = tempPointer->next;
-        tempPointer->next = tempNode;
-        tempPointer = tempPointer->next;
+        if (tempPointer != min)
+        {
+            swap_nodes(tempPointer, min);
+            tempPointer = tempPointer->next;
+        }
+        else
+        {
+            tempPointer = tempPointer->next;
+        }
+        // // FIXME: Creates an endless loop
+        // tempNode = tempPointer->next;
+        // tempPointer = tempPointer->next;
+        // tempPointer->next = tempNode;
+        // tempPointer = tempPointer->next;
+    
     }
     printf("Scheduling policy is switched to FCFS. All the %d waiting jobs have been rescheduled.\n", job_queue->size);
     policy = FCFS;
     return 0; // Error code of 0 signifies a successful sort for this policy
+
 }
 
 /*
@@ -84,7 +97,6 @@ int orderSJF()
     Node *tempPointer =job_queue->head;
 
     // Selection Sort algorithm to sort for the sjf policy
-    // FIXME: endless loop needs to be fixed
     while (tempPointer != NULL)
     {
         Node *min = tempPointer;
@@ -97,10 +109,20 @@ int orderSJF()
             }
             tempNode = tempNode->next;
         }
-        tempNode = tempPointer->next;
-        tempPointer = tempPointer->next;
-        tempPointer->next = tempNode;
-        tempPointer = tempPointer->next;
+        if (tempPointer != min)
+        {
+            swap_nodes(tempPointer, min);
+            tempPointer = tempPointer->next;
+        }
+        else
+        {
+            tempPointer = tempPointer->next;
+        }
+        // // FIXME: Creates an endless loop
+        // tempNode = tempPointer->next;
+        // tempPointer = tempPointer->next;
+        // tempPointer->next = tempNode;
+        // tempPointer = tempPointer->next;
     }
     printf("Scheduling policy is switched to SJF. All the %d waiting jobs have been rescheduled.\n", job_queue->size);
     policy = SJF;
@@ -126,7 +148,6 @@ int orderPriority()
     Node *tempPointer =job_queue->head;
 
     // Selection Sort algorithm to sort for the priority policy
-    // FIXME: endless loop needs to be fixed
     while (tempPointer != NULL)
     {
         Node *min = tempPointer;
@@ -139,12 +160,23 @@ int orderPriority()
             }
             tempNode = tempNode->next;
         }
-        tempNode = tempPointer->next;
-        tempPointer = tempPointer->next;
-        tempPointer->next = tempNode;
-        tempPointer = tempPointer->next;
-    }
-    printf("Scheduling policy is switched to Priority. All the %d waiting jobs have been rescheduled.\n", job_queue->size);
-    policy = PRIORITY;
-    return 0; // Error code of 0 signifies a successful sort for this policy
+        if (tempPointer != min)
+        {
+            swap_nodes(tempPointer, min);
+            tempPointer = tempPointer->next;
+        }
+        else 
+        {
+            tempPointer = tempPointer->next;
+        }
+        //     // FIXME: Creates an endless loop
+        //     tempNode = tempPointer->next;
+        //     tempPointer = tempPointer->next;
+        //     tempPointer->next = tempNode;
+        //     tempPointer = tempPointer->next;
+        // 
+            }
+            printf("Scheduling policy is switched to Priority. All the %d waiting jobs have been rescheduled.\n", job_queue->size);
+            policy = PRIORITY;
+            return 0; // Error code of 0 signifies a successful sort for this policy
 }

@@ -26,13 +26,13 @@ void menu_execute(char *line, int isargs);
 int cmd_run(int nargs, char **args); 		// Prototype for cmd_run which is later defined
 int cmd_quit(int nargs, char **args);  		// Prototype for cmd_quit which is later defined
 void showmenu(const char *x[]);		// Prototype for showmenu which is later defined
-int cmd_helpmenu(int n, char **a);		// Prototype for cmd_helpmenu which is later defined
+int cmd_helpmenu(int nargs, char **args);		// Prototype for cmd_helpmenu which is later defined
 int cmd_dispatch(char *cmd);		// Prototype for cmd_dispatch which is later defined
-int cmd_fcfs();
-int cmd_sjf();
-int cmd_priority();
-int cmd_list();
-int cmd_test();
+int cmd_fcfs(int nargs);
+int cmd_sjf(int nargs);
+int cmd_priority(int nargs);
+int cmd_list(int nargs);
+int cmd_test(int nargs);
 
 /*
  * The run command - submit a job.
@@ -46,15 +46,17 @@ int cmd_run(int nargs, char **args) // "**" = pointer to pointer
         
 		Node *newNode = (Node*) malloc(sizeof(Node));
 		printf("Job %s was submitted.\n", args[1]);
-		print_num_jobs();
+		
 		// TODO: Print expected wait time
 		print_policy();
-		newNode->name = malloc(strlen(args[1]) + 1);
-		newNode->jobTime = (int) args[2];
-		newNode->jobPriority = (int) args[3];
+		newNode->name = (char*) malloc(strlen(args[1]) + 1);
+		strcpy(newNode->name, args[1]);
+		newNode->jobTime = (int) atoi(args[2]);
+		newNode->jobPriority = (int) atoi(args[3]);
 \
-		enQueue(job_queue, newNode);
-        /* Use execv to run the submitted job in csubatch */
+		enQueue(newNode);
+		print_num_jobs();
+		/* Use execv to run the submitted job in csubatch */
         //printf("use execv to run the job in csubatch.\n");
       	return 0; /* if succeed */
 }
@@ -62,40 +64,65 @@ int cmd_run(int nargs, char **args) // "**" = pointer to pointer
 /* 
  * FCFS command - changes the policy to First Come First Served
  */
-int cmd_fcfs()
+int cmd_fcfs(int nargs)
 {
-	return orderFCFS(job_queue);
+	if (nargs != 1)
+	{
+		printf("The \"FCFS\" command doesn't accept any flags.\n");
+		return EINVAL;
+	}
+	return orderFCFS();
 }
 
 /* 
  * SJF command - changes the policy to Shortest Job First
  */
-int cmd_sjf()
+int cmd_sjf(int nargs)
 {
-	return orderSJF(job_queue);
+	if (nargs != 1)
+	{
+		printf("The \"SJF\" command doesn't accept any flags.\n");
+		return EINVAL;
+	}
+	return orderSJF();
 }
 
 /* 
  * Priority command - changes the policy to the 
  */
-int cmd_priority()
+int cmd_priority(int nargs)
 {
-	return orderPriority(job_queue);
+	if (nargs != 1)
+	{
+		printf("The \"Priority\" command doesn't accept any flags.\n");
+		return EINVAL;
+	}
+	return orderPriority();
 }
 
 /*
  * List command - displays the jobs in the queue that are running and pending
  */
-int cmd_list()
+int cmd_list(int nargs)
 {
+	if (nargs != 1)
+	{
+		printf("The \"list\" command doesn't accept any flags.\n");
+		return EINVAL;
+	}
 	print_num_jobs();
 	print_policy();
-	printQueue(job_queue);
+	printQueue();
 	return 0;
 }
 
-int cmd_test()
+int cmd_test(int nargs)
 {
+	if (nargs != 4)
+	{
+		printf("Usage: run <job> <time> <priority>\n");
+		return EINVAL;
+	}
 	// TODO: complete this command
 	return 0;
 }
@@ -105,6 +132,11 @@ int cmd_test()
  */
 int cmd_quit(int nargs, char **args) 
 {
+	if (nargs != 1)
+	{
+		printf("The \"quit\" command doesn't accept any flags.\n");
+		return EINVAL;
+	}
 	printf("Please display performance information before exiting csubatch!\n");
         exit(0);
 }
@@ -138,10 +170,10 @@ static const char *helpmenu[] =
 	{
 
 		"NAME                         USAGE                            DESCRIPTION                  ",
-		"fcfs                       fcfs, FCFS          Changes policy to FCFS and reorders queue   ",
-		"help                       help, h, ?                       Print help menu                ",
+		"fcfs                       cfs, FCFS           Changes policy to FCFS and reorders queue   ",
+		"help                   help, h, ?, <flag>                   Print help menu                ",
 		"list                         list               Prints jobs running and pending in queue   ",
-		"priority                    priority         Changes policy to priority and reorders queue ",
+		"priority                  priority, p         Changes policy to priority and reorders queue",
 		"quit                        quit, q                          Exit csubatch                 ",
 		"run                run <job> <time> <priority>          Adds a job to the queue            ",
 		"sjf                         sjf, SJF            Changes policy to SJF and reorders queue   ",
@@ -153,8 +185,20 @@ int cmd_helpmenu(int n, char **a)
 {
 	(void)n;
 	(void)a;
+	if (n == 1)
+	{
+		showmenu(helpmenu);	
+	}
+	else if (n > 2) {
+		printf("Can only accept one flag at a time\n");
+		printf("Acceptable flags:\"-fcfs\", \"-help\", \"-list\", \"-priority\", \"-quit\", \"-run\", \"-sjf\", \"-test\"\n");
+	}
+	else
+	{
+		// TODO: Process help flags
+	}
+	
 
-	showmenu(helpmenu);	
 	return 0;
 }
 
@@ -168,21 +212,21 @@ static struct {
 	int (*func)(int nargs, char **args);
 } cmdtable[] = {
 	/* commands: single command must end with \n */
-	{ "?\n",	cmd_helpmenu },
-	{ "h\n",	cmd_helpmenu },
-	{ "help\n",	cmd_helpmenu },
+	{ "?",	    cmd_helpmenu },
+	{ "h",	    cmd_helpmenu },
+	{ "help",	cmd_helpmenu },
 	{ "r",		cmd_run },
 	{ "run",	cmd_run },
-	{ "q\n",	cmd_quit },
-	{ "quit\n",	cmd_quit },
-	{ "list\n", cmd_list },
-	{ "test\n", cmd_test },
-	{ "fcfs\n", cmd_fcfs },
-	{ "FCFS\n", cmd_fcfs },
-	{ "sjf\n",  cmd_sjf },
-	{ "SJF\n",  cmd_sjf },	
-	{ "p\n",    cmd_priority },
-	{ "priority\n", cmd_priority },
+	{ "q",	    cmd_quit },
+	{ "quit",	cmd_quit },
+	{ "list",   cmd_list },
+	{ "test",   cmd_test },
+	{ "fcfs",   cmd_fcfs },
+	{ "FCFS",   cmd_fcfs },
+	{ "sjf",    cmd_sjf },
+	{ "SJF",    cmd_sjf },	
+	{ "p",      cmd_priority },
+	{ "priority", cmd_priority },
         /* Please add more operations below. */
         {NULL, NULL}
 };
@@ -205,15 +249,23 @@ int cmd_dispatch(char *cmd)
 		 word = strtok_r(NULL, " ", &context)) // Walks through the string "cmd" and uses spaces as a delimeter. Whatever word it finds up to a space is stored in "word"
 	{
 
-		if (nargs >= MAXMENUARGS) {
+		if (nargs > MAXMENUARGS) {
 			printf("Command line has too many words\n");
 			return E2BIG;
 		}
-		args[nargs++] = word;
+		if (strcmp(word, " ") != 0 && strcmp(word, "\n") != 0)
+		{
+			args[nargs++] = word;
+		}
 	}
 
-	if (nargs==0) {	// if nothing was entered as a command
+	if (nargs == 0) // if nothing was entered as a command
+	{	
 		return 0;
+	}
+	for (i = 0; i < nargs; i++)
+	{
+		args[i] = strtok(args[i], "\n");
 	}
 
 	// Iterates through the command table to see if the "cmd" entered is a valid command. If it is, then it will execute it and store the result in "result" and return it
@@ -246,7 +298,7 @@ int main()
     buffer = (char*) malloc(bufsize * sizeof(char));
     if (buffer == NULL) 
 	{
- 		perror("Unable to malloc buffer");
+ 		perror("Unable to malloc buffer\n");
  		exit(1);
 	}
 	
@@ -255,6 +307,7 @@ int main()
     while (1) {
 		printf("> ");
 		getline(&buffer, &bufsize, stdin);
+		printf("\n");
 		cmd_dispatch(buffer);
 	}
         return 0;

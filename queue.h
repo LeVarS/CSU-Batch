@@ -21,9 +21,10 @@ typedef struct Queue
 
 Queue* initializeQueue();
 // TODO: change to use global queue - jobQueue
-void enQueue( Queue * queue, Node *newNode );
-Node* deQueue( Queue *queue );
-void printQueue( Queue *queue );
+void enQueue(Node *newNode );
+Node* deQueue();
+void printQueue();
 void print_num_jobs();
+void swap_nodes(Node *node1, Node *node2);
 
 #endif
