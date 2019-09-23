@@ -39,6 +39,7 @@ int orderFCFS()
         printf("Only 1 job in queue. No need to reorder for FCFS policy.\n");
         return 0;
     }
+    // TODO: Lock the critical region - the jobQueue
     //struct Node tempNode = NULL;
     Node *tempPointer =job_queue->head;
     
@@ -65,11 +66,6 @@ int orderFCFS()
         {
             tempPointer = tempPointer->next;
         }
-        // // FIXME: Creates an endless loop
-        // tempNode = tempPointer->next;
-        // tempPointer = tempPointer->next;
-        // tempPointer->next = tempNode;
-        // tempPointer = tempPointer->next;
     
     }
     printf("Scheduling policy is switched to FCFS. All the %d waiting jobs have been rescheduled.\n", job_queue->size);
@@ -93,6 +89,7 @@ int orderSJF()
         printf("Only 1 job in queue. No need to reorder for SJF policy.\n");
         return 0;
     }
+    // TODO: Lock the critical region - the jobQueue
     //struct Node tempNode = NULL;
     Node *tempPointer =job_queue->head;
 
@@ -118,11 +115,6 @@ int orderSJF()
         {
             tempPointer = tempPointer->next;
         }
-        // // FIXME: Creates an endless loop
-        // tempNode = tempPointer->next;
-        // tempPointer = tempPointer->next;
-        // tempPointer->next = tempNode;
-        // tempPointer = tempPointer->next;
     }
     printf("Scheduling policy is switched to SJF. All the %d waiting jobs have been rescheduled.\n", job_queue->size);
     policy = SJF;
@@ -144,6 +136,7 @@ int orderPriority()
         printf("Only 1 job in queue. No need to reorder for Priority policy.\n");
         return 0;
     }
+    // TODO: Lock the critical region - the jobQueue
     //struct Node tempNode = NULL;
     Node *tempPointer =job_queue->head;
 
@@ -169,14 +162,8 @@ int orderPriority()
         {
             tempPointer = tempPointer->next;
         }
-        //     // FIXME: Creates an endless loop
-        //     tempNode = tempPointer->next;
-        //     tempPointer = tempPointer->next;
-        //     tempPointer->next = tempNode;
-        //     tempPointer = tempPointer->next;
-        // 
-            }
-            printf("Scheduling policy is switched to Priority. All the %d waiting jobs have been rescheduled.\n", job_queue->size);
-            policy = PRIORITY;
-            return 0; // Error code of 0 signifies a successful sort for this policy
+    }
+    printf("Scheduling policy is switched to Priority. All the %d waiting jobs have been rescheduled.\n", job_queue->size);
+    policy = PRIORITY;
+    return 0; // Error code of 0 signifies a successful sort for this policy
 }

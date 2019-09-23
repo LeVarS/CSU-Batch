@@ -1,5 +1,6 @@
 compile:
-			gcc commandline_parser.c queue.c scheduling.c -o main
+			gcc process.c -o process
+			gcc batch.c commandline_parser.c queue.c scheduling.c dispatching.c -o main
 			clear
 			./main
 

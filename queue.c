@@ -22,6 +22,7 @@ void enQueue(Node *newNode)
 {
     newNode->arrivalTime = clock();
     // If the queue is empty set the head and tail to the new node
+    // TODO: Lock the critical region - the jobQueue
     if (job_queue->size == 0) 
     {
         job_queue->head = job_queue->tail = newNode;
@@ -46,6 +47,7 @@ Node* deQueue()
     {
         return NULL;
     }
+    // TODO: Lock the critical region - the jobQueue
     Node *removedNode;
     removedNode = job_queue->head;
     job_queue->head = job_queue->head->next;
@@ -55,15 +57,11 @@ Node* deQueue()
 
 void copy_node(Node *destination, Node *source) 
 {
-    // FIXME: causing seg fault
     destination->name = (char*) malloc(strlen(source->name) + 1);
     strcpy(destination->name, source->name);
     destination->arrivalTime = source->arrivalTime;
     destination->jobPriority = source->jobPriority;
     destination->jobTime = source->jobTime;
-
-    //free(destination->name);
-    //free(destination);
 }
 
 void swap_nodes(Node *node1, Node *node2)
@@ -83,15 +81,18 @@ void printQueue()
         printf("There are no jobs pending or running.\n");
     }
     else
-    {
+    {   
+        printf("Name           CPU_Time   Pri   Arrival_Time   Progress\n");
         Node *tempNode = job_queue->head;
+        char str_time[11];
+        char str_pri[6];
         while (tempNode != NULL)
         {
-            //printf("%s", tempNode->name);
-            printf("%s\t%d\t%d\n", tempNode->name, tempNode->jobTime, tempNode->jobPriority);
+            snprintf(str_time, 10, "%d", tempNode->jobTime);
+            snprintf(str_pri, 5, "%d", tempNode->jobPriority);
+            printf("%-15s%-11s%-6s\n", tempNode->name, str_time, str_pri);
             tempNode = tempNode->next;
         }
-        //printf("\n");
     }
 }
 

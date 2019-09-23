@@ -14,6 +14,7 @@
 #include "scheduling.h"	// scheduling policy
 #include "queue.h"	// queue structs and queue funcions
 #include "global.h" // global variables
+#include "parser.h"
 
 /* Error Code */
 #define EINVAL       1
@@ -39,26 +40,35 @@ int cmd_test(int nargs);
  */
 int cmd_run(int nargs, char **args) // "**" = pointer to pointer
 { 
-	if (nargs != 4) {
-		printf("Usage: run <job> <time> <priority>\n");
+
+	if (nargs != 4 && nargs != 3) {
+		printf("Usage: \"run <job> <time> <priority>\" to specify the time and priority.\n");
+		printf("Usage: \"run <job> <time>\" to specify the time. Priority will be set to 1.\n");
 		return EINVAL;
 	}
         
-		Node *newNode = (Node*) malloc(sizeof(Node));
-		printf("Job %s was submitted.\n", args[1]);
+	Node *newNode = (Node*) malloc(sizeof(Node));
+	printf("Job %s was submitted.\n", args[1]);
 		
-		// TODO: Print expected wait time
-		print_policy();
-		newNode->name = (char*) malloc(strlen(args[1]) + 1);
-		strcpy(newNode->name, args[1]);
-		newNode->jobTime = (int) atoi(args[2]);
+	// TODO: Print expected wait time
+	print_policy();
+	newNode->name = (char*) malloc(strlen(args[1]) + 1);
+	strcpy(newNode->name, args[1]);
+	newNode->jobTime = (int) atoi(args[2]);
+
+	if (nargs == 3) 
+	{
+		newNode->jobPriority = 1;
+	}
+	else 
+	{
 		newNode->jobPriority = (int) atoi(args[3]);
-\
-		enQueue(newNode);
-		print_num_jobs();
-		/* Use execv to run the submitted job in csubatch */
-        //printf("use execv to run the job in csubatch.\n");
-      	return 0; /* if succeed */
+	}
+
+	enQueue(newNode);
+	print_num_jobs();
+	/* Use execv to run the submitted job in csubatch */
+  	return 0; /* if succeed */
 }
 
 /* 
@@ -195,7 +205,14 @@ int cmd_helpmenu(int n, char **a)
 	}
 	else
 	{
-		// TODO: Process help flags
+		if (a[1][0] == '-')
+		{
+			showmenu(helpmenu);
+		}
+		else
+		{
+			printf("\"%s\" is not a valid flag. All flag starts with a hyphen ('-').\n", a[1]);
+		}
 	}
 	
 
@@ -287,7 +304,7 @@ int cmd_dispatch(char *cmd)
 /*
  * Command line main loop.
  */
-int main()
+int parse()
 {
 	job_queue = initializeQueue();
 	policy = FCFS;
@@ -304,11 +321,12 @@ int main()
 	
 	printf("Welcom to LeVar's and Aaron's batch job scheduler Version 0.5\nType 'help' or '?' to find more about CSUbatch commands.\n");
 
-    while (1) {
+    while (1) 
+	{
 		printf("> ");
 		getline(&buffer, &bufsize, stdin);
-		printf("\n");
 		cmd_dispatch(buffer);
+		printf("\n");
 	}
         return 0;
 }
